@@ -15,13 +15,17 @@ LABEL name="CentOS Base Image" \
 # Definitions
 ARG FITSIO_VERSION=1.0.4
 ARG SAL_VERSION=3.10.0_001
+ARG OSPL_VERSION=6.9.0
+ARG GIT_LSST="https://github.com/lsst-dm"
+ARG INSTALL_PATH=/opt/lsst
+ARG HEADERSERVICE_VERSION=0.9.7
+ARG SALPYTOOLS_VERSION=0.9.7
 ARG HSUSER=felipe
 
 RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm
 RUN yum -y install python36u python36u-devel python36u-pip
 RUN yum -y install python2-pip
 RUN yum -y install patch
-
 RUN yum -y install deltarpm
 RUN yum -y install xterm boost-python boost-python-devel maven  python-devel java-1.7.0-openjdk-devel
 RUN yum -y install epel-release
@@ -49,20 +53,21 @@ RUN ln -s /usr/bin/python3.6 /usr/bin/python3
 RUN wget https://lsst-web.ncsa.illinois.edu/~felipe/packages/lsst-ts.repo
 RUN mv -v lsst-ts.repo /etc/yum.repos.d
 
-RUN yum -y install OpenSpliceDDS-6.9.0
-RUN yum -y install ATHeaderService-$SAL_VERSION
-RUN yum -y install ATCamera-$SAL_VERSION
-RUN yum -y install ATArchiver-$SAL_VERSION
-RUN yum -y install EFD-$SAL_VERSION
-RUN yum -y install Scheduler-$SAL_VERSION
-RUN yum -y install ATPtg-$SAL_VERSION
-RUN yum -y install ATMCS-$SAL_VERSION
-RUN yum -y install ATSpectrograph-$SAL_VERSION
-RUN yum -y install ATTCS-$SAL_VERSION
-# Needed by ATArchiver
-RUN yum -y install CatchupArchiver-$SAL_VERSION
-RUN yum -y install MTArchiver-$SAL_VERSION
-RUN yum -y install PromptProcessing-$SAL_VERSION
+RUN yum -y install OpenSpliceDDS-$OSPL_VERSION
+RUN yum -y install ATHeaderService-$SAL_VERSION \
+    ATCamera-$SAL_VERSION \
+    ATArchiver-$SAL_VERSION \
+    EFD-$SAL_VERSION \
+    Scheduler-$SAL_VERSION \
+    ATPtg-$SAL_VERSION \
+    ATMCS-$SAL_VERSION \
+    ATSpectrograph-$SAL_VERSION \
+    ATTCS-$SAL_VERSION \
+    # Needed by ATArchiver
+    CatchupArchiver-$SAL_VERSION \
+    MTArchiver-$SAL_VERSION \
+    PromptProcessing-$SAL_VERSION
+
 
 # Get the setup conf
 RUN wget https://lsst-web.ncsa.illinois.edu/~felipe/packages/setup_SAL.env -O /opt/lsst/setup_SAL.env
@@ -72,8 +77,50 @@ RUN wget https://lsst-web.ncsa.illinois.edu/~felipe/packages/setup_SAL.env -O /o
 RUN useradd -ms /bin/bash $HSUSER
 RUN usermod -aG wheel $HSUSER
 
+# Install HeaderService
+ARG PRODUCT=HeaderService
+ARG VERSION=$HEADERSERVICE_VERSION
+ARG PRODUCT_DIR=$INSTALL_PATH/$PRODUCT/$VERSION
+ARG INSTALL_DIR=$INSTALL_PATH/$PRODUCT/$VERSION/sandbox-install
+
+# Create the init env file
+RUN echo "source $INSTALL_PATH/setup_SAL.env" > $INSTALL_PATH/setup_HeaderService.env 
+
+# Git clone and version checkout
+RUN mkdir -p $INSTALL_DIR \
+    && cd $INSTALL_DIR \
+    && git clone $GIT_LSST/$PRODUCT.git \
+    && cd $PRODUCT \
+    && git checkout $VERSION \
+    && mkdir -p $PRODUCT_DIR \
+    && export PYTHONPATH=$PYTHONPATH:$PRODUCT_DIR/python \
+    && python3 setup.py install --prefix=$PRODUCT_DIR --install-lib=$PRODUCT_DIR/python
+
+# Add to the init file
+RUN echo "source $PRODUCT_DIR/setpath.sh $PRODUCT_DIR" >> $INSTALL_PATH/setup_HeaderService.env
+
+# Install the salpytools
+ARG PRODUCT=salpytools
+ARG VERSION=$SALPYTOOLS_VERSION
+ARG PRODUCT_DIR=$INSTALL_PATH/$PRODUCT/$VERSION
+ARG INSTALL_DIR=$INSTALL_PATH/$PRODUCT/$VERSION/sandbox-install
+
+# Git clone and version checkout
+RUN mkdir -p $INSTALL_DIR \
+    && cd $INSTALL_DIR \
+    && git clone $GIT_LSST/$PRODUCT.git \
+    && cd $PRODUCT \
+    && git checkout $VERSION \
+    && mkdir -p $PRODUCT_DIR \
+    && export PYTHONPATH=$PYTHONPATH:$PRODUCT_DIR/python \
+    && python3 setup.py install --prefix=$PRODUCT_DIR --install-lib=$PRODUCT_DIR/python
+
+# Add to the init file
+RUN echo "source $PRODUCT_DIR/setpath.sh $PRODUCT_DIR" >> $INSTALL_PATH/setup_HeaderService.env
+RUN echo "export LSST_DDS_DOMAIN=auxtelpath" >> $INSTALL_PATH/setup_HeaderService.env
+
 # Make /opt writable by $HSUSER
-RUN chown felipe:felipe /opt
+RUN chown $HSUSER:$HSUSER /opt
 
 ENV USER $HSUSER
 ENV HOME /home/$HSUSER
