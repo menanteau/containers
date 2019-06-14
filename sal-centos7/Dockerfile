@@ -20,7 +20,7 @@ ARG GIT_LSST="https://github.com/lsst-dm"
 ARG INSTALL_PATH=/opt/lsst
 ARG HEADERSERVICE_VERSION=0.9.7
 ARG SALPYTOOLS_VERSION=0.9.7
-ARG HSUSER=felipe
+ARG HSUSER=headerservice
 
 RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm
 RUN yum -y install python36u python36u-devel python36u-pip
@@ -50,8 +50,7 @@ RUN ln -s /usr/bin/python3.6 /usr/bin/python3
 # ---------------------
 # ts_sal rpms
 # Add the lsst-ts repo
-RUN wget https://lsst-web.ncsa.illinois.edu/~felipe/packages/lsst-ts.repo
-RUN mv -v lsst-ts.repo /etc/yum.repos.d
+RUN wget https://raw.githubusercontent.com/menanteau/lsst_ts_install_patch/master/lsst-ts.repo -O /etc/yum.repos.d/lsst-ts.repo
 
 RUN yum -y install OpenSpliceDDS-$OSPL_VERSION
 RUN yum -y install ATHeaderService-$SAL_VERSION \
@@ -70,7 +69,7 @@ RUN yum -y install ATHeaderService-$SAL_VERSION \
 
 
 # Get the setup conf
-RUN wget https://lsst-web.ncsa.illinois.edu/~felipe/packages/setup_SAL.env -O /opt/lsst/setup_SAL.env
+RUN wget https://raw.githubusercontent.com/menanteau/lsst_ts_install_patch/master/setup_SAL.env -O /opt/lsst/setup_SAL.env
 # ---------------------
 
 # Add $HSUSER as user
@@ -84,7 +83,7 @@ ARG PRODUCT_DIR=$INSTALL_PATH/$PRODUCT/$VERSION
 ARG INSTALL_DIR=$INSTALL_PATH/$PRODUCT/$VERSION/sandbox-install
 
 # Create the init env file
-RUN echo "source $INSTALL_PATH/setup_SAL.env" > $INSTALL_PATH/setup_HeaderService.env 
+RUN echo "source $INSTALL_PATH/setup_SAL.env" > $INSTALL_PATH/setup_HeaderService.env
 
 # Git clone and version checkout
 RUN mkdir -p $INSTALL_DIR \
