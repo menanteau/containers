@@ -1,9 +1,14 @@
-# to build
+# To build:
 # docker build -t centos7_sal --rm=true .
 
-# Clean up
+# Clean up:
 # docker rm $(docker ps -a -q)
 
+# To run the HeaderService:
+# > source  /opt/lsst/setup_HeaderService.env
+# > DMHS_ATS_configurable  -c $HEADERSERVICE_DIR/etc/conf/atTelemetry.yaml --timeout_endTelem 600
+# for help:
+# > DMHS_ATS_configurable  --help
 
 FROM centos:7
 
