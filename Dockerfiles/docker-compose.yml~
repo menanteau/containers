@@ -1,0 +1,20 @@
+version: "3.7"
+services:
+  base:
+    image: salbase:${IMAGE_TAG}
+    build:
+      context: ./salbase
+      labels:
+        com.description: "LSST DDS/SAL base image."
+
+  salrpm:
+    image: salrpm:${IMAGE_TAG}
+    depends_on:
+      - base
+    build:
+      context: ./salrpm
+      labels:
+        com.description: "Docker OpenSplice/SAL rpms"
+      args:
+        SAL_VERSION : "3.10.0_001-3.10.0.el7"
+        OSPL_VERSION : "6.9.0"

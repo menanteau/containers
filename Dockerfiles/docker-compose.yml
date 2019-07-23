@@ -1,0 +1,51 @@
+version: "3.7"
+services:
+  salbase:
+    image: salbase:${IMAGE_TAG}
+    build:
+      context: ./salbase
+      labels:
+        com.description: "LSST DDS/SAL base image."
+
+  salrpm:
+    image: salrpm:${IMAGE_TAG}
+    depends_on:
+      - salbase
+    build:
+      context: ./salrpm
+      labels:
+        com.description: "Docker OpenSplice/SAL rpms"
+      args:
+        salbase_image_tag : ${IMAGE_TAG}
+        SAL_VERSION : "3.10.0_001-3.10.0.el7"
+        OSPL_VERSION : "6.9.0"
+
+  salsrc:
+    image: salsrc:${IMAGE_TAG}
+    depends_on:
+      - salrpm
+    build:
+      context: ./salsrc
+      labels:
+        com.description: "Docker OpenSplice/SAL from source"
+      args:
+        salrpm_image_tag : ${IMAGE_TAG}
+        TS_SAL_VERSION : "v3.10.0"
+        TS_XML_VERSION : "v3.10.0"
+        INSTALL_PATH : "/opt/lsst"
+
+  salobj:
+    image: salobj:${IMAGE_TAG}
+    depends_on:
+      - salsrc
+    build:
+      context: ./salsrc
+      labels:
+        com.description: "Docker for ts_salobj"
+      args:
+        salrpm_image_tag : ${IMAGE_TAG}
+        TS_SALOBJ_VERSION : "v4.1.0"
+        TS_IDL_VERSION: "v0.2.0"
+        INSTALL_PATH : "/opt/lsst"
+        GIT_LSST_TS: "https://github.com/lsst-ts"
+        REPOS_TMP: "/tmp/repos"
