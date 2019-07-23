@@ -33,34 +33,28 @@ ARG REPOS_TMP=/tmp/repos
 ARG HSUSER=headerservice
 
 RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm
-RUN yum -y install python36u python36u-devel python36u-pip
-RUN yum -y install python2-pip
-RUN yum -y install patch
-RUN yum -y install deltarpm
-RUN yum -y install xterm boost-python boost-python-devel maven  python-devel java-1.7.0-openjdk-devel
-RUN yum -y install epel-release
-RUN yum -y install python-astropy ipython
-RUN yum -y install wget
-RUN yum -y install git
-RUN yum -y install make
-RUN yum -y install emacs
-RUN yum -y install gcc-c++ gcc.x86_64 gcc-gfortran
+RUN yum -y install python36u python36u-devel python36u-pip \
+    patch \
+    deltarpm \
+    xterm boost-python boost-python-devel maven python-devel java-1.7.0-openjdk-devel \
+    epel-release \
+    wget \
+    git \
+    make \
+    emacs \
+    gcc-c++ gcc.x86_64 gcc-gfortran
 
 # Pip2/3 -- once we upgrade it's renamed pip3.6 --> pip3
-RUN pip install --upgrade pip
 RUN pip3.6 install --upgrade pip
-RUN pip3 install astropy
-RUN pip3 install ipython
-RUN pip3 install pyyaml
-RUN pip3 install fitsio==$FITSIO_VERSION
+RUN pip3 install astropy ipython pyyaml fitsio==$FITSIO_VERSION
 
 # For salobj suport
-RUN pip3 install setuptools==41.0.1
-RUN pip3 install jsonschema==3.0.1
-RUN pip3 install Cython==0.29.12
+RUN pip3 install setuptools==41.0.1 jsonschema==3.0.1 Cython==0.29.12
 
 # Make python3 link
 RUN ln -s /usr/bin/python3.6 /usr/bin/python3
+
+
 
 # ---------------------
 # ts_sal rpms
@@ -72,8 +66,8 @@ RUN cd $REPOS_TMP \
     && git clone https://github.com/menanteau/lsst_ts_install_patch.git -b $ts_install_patch_VERSION \
     && cp -v lsst_ts_install_patch/lsst-ts.repo /etc/yum.repos.d
 
-RUN yum -y install OpenSpliceDDS-$OSPL_VERSION
-RUN yum -y install ATHeaderService-$SAL_VERSION \
+RUN yum -y install OpenSpliceDDS-$OSPL_VERSION \
+    ATHeaderService-$SAL_VERSION \
     ATCamera-$SAL_VERSION \
     ATArchiver-$SAL_VERSION \
     EFD-$SAL_VERSION \
