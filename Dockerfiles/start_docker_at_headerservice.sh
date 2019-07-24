@@ -1,5 +1,5 @@
 HSUSER=headerservice
-DOCKER_IMA=salbase
+DOCKER_IMA=at_headerservice:test
 hostname="`hostname -s`-docker"
 ip=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
 xhost + $ip

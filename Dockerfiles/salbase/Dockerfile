@@ -25,26 +25,10 @@ RUN yum -y install python36u python36u-devel python36u-pip \
 # Pip2/3 -- once we upgrade it's renamed pip3.6 --> pip3
 RUN pip3.6 install --upgrade pip
 
-# For sal/salobj suport
+# Additional python3 libraries suport
 RUN pip3 install astropy ipython pyyaml
-RUN pip3 install setuptools==41.0.1 jsonschema==3.0.1 Cython==0.29.12
 
 # Make python3 link
 RUN ln -s /usr/bin/python3.6 /usr/bin/python3
-
-## Add $HSUSER as user
-#ARG HSUSER=headerservice
-#RUN useradd -ms /bin/bash $HSUSER
-#RUN usermod -aG wheel $HSUSER
-
-## Make /opt writable by $HSUSER
-#RUN chown $HSUSER:$HSUSER /opt
-
-#ENV USER $HSUSER
-#ENV HOME /home/$HSUSER
-#ENV SHELL /bin/bash
-
-#USER $HSUSER
-#WORKDIR /home/$HSUSER
 
 
