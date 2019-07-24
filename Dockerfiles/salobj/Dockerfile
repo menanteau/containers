@@ -1,7 +1,7 @@
 
-ARG salsrc_image_tag
+ARG salsrc_image
 
-FROM salsrc:$salsrc_image_tag
+FROM $salsrc_image
 
 ARG TS_SALOBJ_VERSION=v4.1.0
 ARG TS_IDL_VERSION=v0.2.0

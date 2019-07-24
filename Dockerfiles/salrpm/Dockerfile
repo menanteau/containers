@@ -1,6 +1,6 @@
-ARG salbase_image_tag
+ARG salbase_image
 
-FROM salbase:${salbase_image_tag}
+FROM $salbase_image
 
 # ---------------------
 # Install the ts_sal rpms

@@ -1,15 +1,21 @@
 version: "3.7"
-services:
 
- salbase:
-    image: salbase:${IMAGE_TAG}
+# To run:
+# export IMAGE_TAG=sal_3.10.0_salobj_4.10
+# docker-compose build salbase
+#  or to build all
+# docker-compose build salbase salrpm salsrc salobj at_headerservice 
+
+services:
+  salbase:
+    image: lsstdm/salbase:${IMAGE_TAG}
     build:
       context: ./salbase
       labels:
         com.description: "LSST DDS/SAL base docker image."
 
   salrpm:
-    image: salrpm:${IMAGE_TAG}
+    image: lsstdm/salrpm:${IMAGE_TAG}
     depends_on:
       - salbase
     build:
@@ -17,12 +23,12 @@ services:
       labels:
         com.description: "Docker OpenSplice/SAL image rpms"
       args:
-        salbase_image_tag : ${IMAGE_TAG}
+        salbase_image : lsstdm/salbase:${IMAGE_TAG}
         SAL_VERSION : "3.10.0_001-3.10.0.el7"
         OSPL_VERSION : "6.9.0"
 
   salsrc:
-    image: salsrc:${IMAGE_TAG}
+    image: lsstdm/salsrc:${IMAGE_TAG}
     depends_on:
       - salrpm
     build:
@@ -30,13 +36,13 @@ services:
       labels:
         com.description: "Docker OpenSplice/SAL image from source"
       args:
-        salrpm_image_tag : ${IMAGE_TAG}
+        salrpm_image: lsstdm/salrpm:${IMAGE_TAG}
         TS_SAL_VERSION : "v3.10.0"
         TS_XML_VERSION : "v3.10.0"
         INSTALL_PATH : "/opt/lsst"
 
   salobj:
-    image: salobj:${IMAGE_TAG}
+    image: lsstdm/salobj:${IMAGE_TAG}
     depends_on:
       - salsrc
     build:
@@ -44,7 +50,7 @@ services:
       labels:
         com.description: "Docker inage for ts_salobj"
       args:
-        salsrc_image_tag : ${IMAGE_TAG}
+        salsrc_image : lsstdm/salsrc:${IMAGE_TAG}
         TS_SALOBJ_VERSION : "v4.1.0"
         TS_IDL_VERSION: "v0.2.0"
         INSTALL_PATH : "/opt/lsst"
@@ -52,7 +58,7 @@ services:
         REPOS_TMP: "/tmp/repos"
 
   at_headerservice:
-    image: at_headerservice:${IMAGE_TAG}
+    image: lsstdm/at_headerservice:${IMAGE_TAG}
     depends_on:
       - salobj
     build:
@@ -60,11 +66,25 @@ services:
       labels:
         com.description: "Docker image for at_headerservice"
       args:
-        salobj_image_tag : ${IMAGE_TAG}
+        salobj_image : salobj:${IMAGE_TAG}
         HEADERSERVICE_VERSION : "0.9.8"
         SALPYTOOLS_VERSION: "0.9.7"
         FITSIO_VERSION : "1.0.4"
         HSUSER : "headerservice"
+        INSTALL_PATH : "/opt/lsst"
+        GIT_LSST_DM: "https://github.com/lsst-dm"
+        REPOS_TMP: "/tmp/repos"
+
+  at_archiver:
+    image: lsstdm/at_archiver:${IMAGE_TAG}
+    depends_on:
+      - salobj
+    build:
+      context: ./at_archiver
+      labels:
+        com.description: "Docker image for at_archiver"
+      args:
+        salobj_image : salobj:${IMAGE_TAG}
         INSTALL_PATH : "/opt/lsst"
         GIT_LSST_DM: "https://github.com/lsst-dm"
         REPOS_TMP: "/tmp/repos"

@@ -1,7 +1,7 @@
 
-ARG salrpm_image_tag
+ARG salrpm_image
 
-FROM salrpm:$salrpm_image_tag
+FROM $salrpm_image
 
 # code version
 ARG TS_SAL_VERSION=v3.10.0

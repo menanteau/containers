@@ -1,7 +1,7 @@
 
-ARG salobj_image_tag
+ARG salobj_image
 
-FROM salobj:$salobj_image_tag
+FROM $salobj_image
 
 
 # Versions
@@ -9,6 +9,8 @@ ARG HEADERSERVICE_VERSION=0.9.8
 ARG SALPYTOOLS_VERSION=0.9.7
 ARG FITSIO_VERSION=1.0.4
 ARG GIT_LSST_DM="https://github.com/lsst-dm"
+ARG INSTALL_PATH=/opt/lsst
+ARG REPOS_TMP=/tmp/repos
 ARG HSUSER=headerservice
 
 RUN pip3 install fitsio==$FITSIO_VERSION
