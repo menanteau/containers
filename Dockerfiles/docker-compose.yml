@@ -1,6 +1,7 @@
 version: "3.7"
 services:
-  salbase:
+
+ salbase:
     image: salbase:${IMAGE_TAG}
     build:
       context: ./salbase
