@@ -15,6 +15,7 @@ RUN yum -y install gcc-gfortran
 RUN yum -y install compat-gcc-34-g77
 RUN yum -y install glibc-devel
 RUN yum -y install glibc-devel.i686 libgcc.i686 libstdc++-devel.i686 ncurses-devel.i686
+RUN yum -y install scipy
 
 RUN useradd -ms /bin/bash felipe 
 RUN usermod -aG wheel felipe
